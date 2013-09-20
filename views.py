@@ -1,12 +1,14 @@
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from forms import PhotoForm, BarcodeForm
-
+from django.contrib.auth.decorators import login_required
+from django.template import RequestContext
 from models import Product, ProductImage, Scanner, ScannedProducts
 from django.contrib.auth.models import User
 
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.core import serializers
 
 import os
 import tempfile
@@ -118,3 +120,18 @@ def updateRecords(code, person, imageFile = None):
         response = '%s : %s' % ( productObj.description, productObj.barcode)
         
     return response
+
+@login_required
+def getRecords(request):
+    
+    person = request.user
+    scannedProducts = ScannedProducts.objects.filter(owner=person)
+
+    serliazedData = serializers.serialize("json", scannedProducts ,indent=2, use_natural_keys=True)
+    return HttpResponse(serliazedData, mimetype="application/json")
+#    return HttpResponse(json.dumps(productDetails), mimetype="application/json")
+
+def base(request):
+    
+    return render(request, 'barcodeServer/index.html' , {"foo": "bar"},
+        content_type="application/xhtml+xml")   

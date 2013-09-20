@@ -10,6 +10,11 @@ class Product(models.Model):
 
     def __unicode__(self):
         return '%d:%s' % (self.barcode ,self.description)
+    
+    def natural_key(self):
+        return { 'description':self.description,  'barcode':self.barcode,  'barcode_type':self.barcodeType}
+    
+   
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product)
@@ -25,7 +30,10 @@ class ScannedProducts(models.Model):
     
     def __unicode__(self):
         return '%s - %s (%s)' % (self.product ,self.owner.username , self.addingDate)
-
+    
+    def natural_key(self):
+        return { 'addingDate':self.addingDate, 'product':self.product.natural_key() }
+    
 
 class Scanner(models.Model):
     owner = models.ForeignKey(User)

@@ -12,7 +12,8 @@ urlpatterns = patterns('',
     url(r'^barcodeServer/uploadImage$', 'barcodeServer.views.uploadImage'),
     url(r'^barcodeServer/uploadBarcode', 'barcodeServer.views.uploadBarcode'),
     url(r'^barcodeServer/(?P<machineID>\w+)/addToPerson/(?P<personID>\w+)', 'barcodeServer.views.addToPerson'),
-
+    url(r'^barcodeServer/getRecords$', 'barcodeServer.views.getRecords'),
+    url(r'^$', 'views.base', name='base'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

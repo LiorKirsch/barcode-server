@@ -1,0 +1,45 @@
+.hero-unit h1 {
+	float: left;
+  margin-right: 50px;
+	font-size: 110px;
+}
+.marketing {
+  text-align: center;
+  color: #5a5a5a;
+}
+#gallery {
+  text-align: center;
+ }
+.rightbar{
+    left: auto;
+    right: 20px;
+}
+
+.moreimages{
+	display:none;
+	text-align: center;
+}
+.marketing h2 {
+  font-weight: 200;
+  margin-bottom: 5px;
+  line-height: 40px;
+}
+
+.marketing img {
+  height: 120px;
+}
+
+.marketing p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.photo {
+  float: left;
+}
+
+.photo img {
+  //padding: 10px;
+  //border: 1px solid #5a5a5a;
+}
+
