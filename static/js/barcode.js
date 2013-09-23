@@ -7,6 +7,8 @@ function fillDataTable(data)
 	var lastProdcutBarCode = null;
 	var sameProductGrouped = new Array();
 	var currentBarCode;
+	var lastDescription;
+	var lastExpiresInDays;
         var numberOfGroup = 1;
 	 for (var key=0, size=data.length; key<size; key++){
 
@@ -16,12 +18,14 @@ function fillDataTable(data)
 		}
 	    else {
 	        r.push ( createProductTableRow(sameProductGrouped ,numberOfGroup)  );
-		itemsIds.push ( currentBarCode );
+		itemsIds.push ( {"barcode":lastProdcutBarCode,"description":lastDescription,"expiresInDays":lastExpiresInDays} );
 
 		numberOfGroup ++;
 		sameProductGrouped = new Array();
 		}
 	    lastProdcutBarCode = currentBarCode;
+ 	    lastDescription = data[key].fields.product.description;
+	    lastExpiresInDays = data[key].fields.product.expiresInDays;
 
 	 }
 
@@ -30,9 +34,9 @@ function fillDataTable(data)
 	 var barcodeId;
 	 var title;
 	 for (var key=0, size=itemsIds.length; key<size; key++){
-		barcodeId = "#barcode-" + itemsIds[key];
-	        title = 'update item ' + barcode;
-	 	$( barcodeId ).popover({ title: title, content: createProductUpdateForm(barcode) ,html:true, placement:'right'});
+		barcodeId = "#barcode-" + itemsIds[key]["barcode"];
+	        title = 'update item ' + itemsIds[key]["barcode"];
+	 	$( barcodeId ).popover({ title: title, content: createProductUpdateForm( itemsIds[key] ) ,html:true, placement:'right'});
 	}
 
 	$('.progress .bar').progressbar();           // bootstrap 2
@@ -107,8 +111,8 @@ function createProductTableRow(productDataArray,index)
 
 	histogramCounts = countFreshnessHistogram(productDataArray);
 
-	tableRowHTML[++j] ='<tr data-toggle="collapse" data-target="#demo' + index + '" id="accordian2" class="accordion-toggle"><td class="itemNumberTD">' + numberOfItemsInGroup + '</td><td class="whatever1">';
-	tableRowHTML[++j] = '<a href="#" id="barcode-' + barcode +'" class="btn">Update</a> ' + description ;
+	tableRowHTML[++j] ='<tr ><td data-toggle="collapse" data-target="#demo' + index + '" id="accordian2" class="accordion-toggle" class="itemNumberTD"><i class=" icon-search" > </i>   ' + numberOfItemsInGroup + '</td><td class="whatever1">';
+	tableRowHTML[++j] = '<i class="icon-edit" href="#" id="barcode-' + barcode +'" class="btn"></i> ' + description ;
 	tableRowHTML[++j] = '</td><td class="smallTD">' + createHistogram( histogramCounts ) + '</td></tr>';
 	tableRowHTML[++j] = '<tr><td></td><td><div class="accordian-body collapse" data-parent="#accordion2" id="demo' + index + '">'; 
 	for (var key=0, size=productDataArray.length; key<size; key++){
@@ -127,9 +131,9 @@ function createProductTableRow(productDataArray,index)
 function createProductUpdateForm(productBarCode)
 {
 	var htmlData;
-	htmlData = '<div class="form-group"><form action="/barcodeServer/addProductDetails/' + productBarCode + '" method="get">'
-	htmlData += '<input type="text" name="description" class="form-control" placeholder="This is a…">'
-	htmlData += '<input type="text" name="expiresInDays" class="form-control" placeholder="Expires in X days…">'
+	htmlData = '<div class="form-group"><form action="/barcodeServer/addProductDetails/' + productBarCode["barcode"] + '" method="get">'
+	htmlData += 'Description:<input type="text" name="description" class="form-control" placeholder="This is a…" value="' + productBarCode["description"] + '">';
+	htmlData += 'Expires in … days:<input type="text" name="expiresInDays" class="form-control" placeholder="Expires in X days…" value="' + productBarCode["expiresInDays"] + '">';
 	htmlData += '<button type="submit" class="btn btn-default btn-block">Update</button>'
 	htmlData += '</form></div>'
 
