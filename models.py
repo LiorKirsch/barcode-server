@@ -7,12 +7,14 @@ class Product(models.Model):
     description = models.CharField(max_length=1000, blank=True)
     barcode     = models.IntegerField()
     barcodeType = models.CharField(max_length=100, blank=True)
+    expiresInDays = models.DecimalField( max_digits=12, decimal_places=3, null=True)
+    addedBy = models.ForeignKey(User)
 
     def __unicode__(self):
         return '%d:%s' % (self.barcode ,self.description)
     
     def natural_key(self):
-        return { 'description':self.description,  'barcode':self.barcode,  'barcode_type':self.barcodeType}
+        return { 'description':self.description,  'barcode':self.barcode,  'barcode_type':self.barcodeType,'expiresInDays':self.expiresInDays}
     
    
 
@@ -27,6 +29,7 @@ class ScannedProducts(models.Model):
     addingDate = models.DateTimeField(default=datetime.now, blank=True)
     product = models.ForeignKey(Product)
     owner = models.ForeignKey(User)
+    isRemoved = models.BooleanField(default=False)
     
     def __unicode__(self):
         return '%s - %s (%s)' % (self.product ,self.owner.username , self.addingDate)

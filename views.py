@@ -16,9 +16,9 @@ import urllib2
 from subprocess import Popen, PIPE, STDOUT
 import string, random
 
-def addToPerson(request, machineID, personID):
-    person = User.objects.get(uniqueId=personID)
-    
+def addToPerson(request, personID):
+    person = User.objects.get(username=personID)
+    machineID = request.GET['machineID']
     try:
         scanner = Scanner.objects.get(uniqueId=machineID)
         scanner.owner = person
@@ -26,6 +26,9 @@ def addToPerson(request, machineID, personID):
     except Scanner.DoesNotExist:
         scanner = Scanner(owner=person, uniqueId=machineID )
         scanner.save()
+
+    response_data = {'status': 'success','response': 'added %s to user %s' % (machineID, personID) }
+    return HttpResponse(json.dumps(response_data), mimetype="application/json")
 
 @csrf_exempt    
 def uploadImage(request):
@@ -110,7 +113,8 @@ def updateRecords(code, person, imageFile = None):
     else:
         barcodeType = code.split(':')[0]
         barcode = code.split(':')[1].rstrip()
-        productObj, created = Product.objects.get_or_create(barcode = barcode, barcodeType=barcodeType)
+        barcode = int(barcode)
+        productObj, created = Product.objects.get_or_create(barcode = barcode, barcodeType=barcodeType, addedBy=person)
         ScannedProducts.objects.create(product=productObj, owner=person)
         
         if imageFile is not None:
@@ -122,15 +126,54 @@ def updateRecords(code, person, imageFile = None):
     return response
 
 @login_required
+def addProductDetails(request, productBarCode):
+    person = request.user
+    description = request.GET['description']
+    expiresInDays = float(request.GET['expiresInDays'])
+        
+    productObj = Product.objects.get(barcode = productBarCode)
+
+    productObj.addedBy = person
+    productObj.description = description
+    productObj.expiresInDays = expiresInDays
+    productObj.save()
+    
+    response_data = {'status': 'success','response': productObj.natural_key()}
+    
+    return HttpResponse(json.dumps(response_data), mimetype="application/json")
+    
+    
+@login_required
 def getRecords(request):
     
     person = request.user
-    scannedProducts = ScannedProducts.objects.filter(owner=person)
+    scannedProducts = ScannedProducts.objects.filter(owner=person) #.order_by('product__description')
 
+#    groupedItems = groupByProduct(scannedProducts)
     serliazedData = serializers.serialize("json", scannedProducts ,indent=2, use_natural_keys=True)
     return HttpResponse(serliazedData, mimetype="application/json")
 #    return HttpResponse(json.dumps(productDetails), mimetype="application/json")
 
+def groupByProduct(input):
+    output = []
+    lastItem = None
+    lastItemCounter = 0
+    groupItem = []
+    for iter in xrange(len(input)):
+        currentItem = input[iter]
+        if (lastItem is None) or ( currentItem.product == lastItem.product  ) and  iter < len(input) -1 :
+            lastItemCounter = lastItemCounter + 1
+            groupItem.append(currentItem.addingDate)
+        else:
+            output.append({'counter': lastItemCounter, 'item': lastItem ,'dates':groupItem})
+            groupItem = []
+            lastItemCounter = 0
+            
+        lastItem = currentItem
+        
+    return output
+            
+        
 def base(request):
     
     return render(request, 'barcodeServer/index.html' , {"foo": "bar"},

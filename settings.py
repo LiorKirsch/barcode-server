@@ -4,6 +4,8 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 IMAGES_FOLDER = os.path.join(PROJECT_ROOT,'images')
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TIME_ZONE = 'Europe/Athens'
+USE_TZ = True
 
 LOGIN_URL ='/admin/'
 ADMINS = (
