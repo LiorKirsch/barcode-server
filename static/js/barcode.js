@@ -24,6 +24,7 @@ function fillDataTable(data)
 	    lastProdcutBarCode = currentBarCode;
 
 	 }
+
 	 $('#dataTableBody').html(r.join(''));
 
 	 var barcodeId;
@@ -34,6 +35,8 @@ function fillDataTable(data)
 	 	$( barcodeId ).popover({ title: title, content: createProductUpdateForm(barcode) ,html:true, placement:'right'});
 	}
 
+	$('.progress .bar').progressbar();           // bootstrap 2
+	$('.progress .progress-bar').progressbar();  // bootstrap 3
 } 
 
 function createFreshnessBar(percentExpired)
@@ -48,9 +51,52 @@ function createFreshnessBar(percentExpired)
 		barStyle = "bar-danger";
 	}
 
-        var barHTML = 	'<div class="progress"> <div class="bar '+ barStyle + '" style="width: ' + percentExpired + '%;"> </div> ';
+        var barHTML = 	'<div class="progress "> <div class="bar '+ barStyle + '" style="width: ' + percentExpired + '%;"> </div> ';
 	return barHTML;
 }
+
+function createHistogram(histogramCounts) {
+
+	var barHTML = new Array(), j = -1;
+	barHTML[++j] = 	'<div class="histogram">';
+	barHTML[++j] = 	'<div class="progress vertical bottom"> <div class="bar bar-info" aria-valuetransitiongoal="' + histogramCounts[0] +'"> </div>  </div>';
+	barHTML[++j] = 	'<div class="progress vertical bottom"> <div class="bar bar-warning" aria-valuetransitiongoal="' + histogramCounts[1] +'"> </div>  </div>';
+	barHTML[++j] = 	'<div class="progress vertical bottom"> <div class="bar bar-danger" aria-valuetransitiongoal="' + histogramCounts[2] +'"> </div> </div> ';
+	barHTML[++j] = 	'</div>';
+	return barHTML.join('');;
+}
+
+function countFreshnessHistogram(productDataArray)
+{
+	var infoCount=0;
+	var warningCount=0;
+	var dangerCount=0;
+	var totalCount=0;
+
+	for (var key=0, size=productDataArray.length; key<size; key++){
+		productData = productDataArray[key];
+		addingDate = productData.fields.addingDate;
+		expiresInDays = productData.fields.product.expiresInDays;
+		percentExpired = getFreshnessBar(addingDate, expiresInDays)
+		
+		if (percentExpired < 33) {
+			infoCount ++;
+		}
+		else if (percentExpired < 66) {
+			warningCount++;
+		}
+		else{
+			dangerCount++;
+		}
+		totalCount++;
+	}
+	var counts = new Array(), j = -1; 
+	counts[++j] = infoCount / totalCount * 100 +5;
+	counts[++j] = warningCount / totalCount * 100 +5;
+	counts[++j] = dangerCount / totalCount * 100 +5;
+	return counts;
+}
+
 function createProductTableRow(productDataArray,index) 
 {
 
@@ -59,10 +105,11 @@ function createProductTableRow(productDataArray,index)
 	barcode = productDataArray[0].fields.product.barcode;
 	description = productDataArray[0].fields.product.description;
 
+	histogramCounts = countFreshnessHistogram(productDataArray);
 
 	tableRowHTML[++j] ='<tr data-toggle="collapse" data-target="#demo' + index + '" id="accordian2" class="accordion-toggle"><td class="itemNumberTD">' + numberOfItemsInGroup + '</td><td class="whatever1">';
 	tableRowHTML[++j] = '<a href="#" id="barcode-' + barcode +'" class="btn">Update</a> ' + description ;
-	tableRowHTML[++j] = '</td><td></td></tr>';
+	tableRowHTML[++j] = '</td><td class="smallTD">' + createHistogram( histogramCounts ) + '</td></tr>';
 	tableRowHTML[++j] = '<tr><td></td><td><div class="accordian-body collapse" data-parent="#accordion2" id="demo' + index + '">'; 
 	for (var key=0, size=productDataArray.length; key<size; key++){
 

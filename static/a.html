@@ -14,12 +14,31 @@
     <script src="/static/js/barcode.js" type="text/javascript"></script>
     <script src="/static/js/jquery-1.8.2.min.js" type="text/javascript"></script>
     <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script src="/static/js/bootstrap-progressbar.js" type="text/javascript"></script>
+    <link href="/static/css/bootstrap-progressbar-2.3.2.css" rel="stylesheet">
+
 	<style>
 	  body {
 	    padding-top: 60px;
 	  }
+	  .smallTD {
+	  width:100px;
+	   border-spacing: 0px;
+	   padding:3px;
+	  }
 	  .itemNumberTD {
 	  width:70px;
+	  }
+	  .histogram {
+	  height:40px;
+	  }
+	  .progress {
+	  margin-bottom: 2px;
+	  }
+	  .progress.vertical {
+          margin-right: 5px;
+          margin-left: 5px;
 	  }
 	</style>
 
@@ -69,7 +88,7 @@
 		<tr>
 		    <th  class="itemNumberTD"># Items</th>
 		    <th>Description</th>
-		    <th>Freshness</th>
+		    <th class="smallTD">Freshness</th>
 		</tr>
 	    </thead>
 	    <tbody id="dataTableBody">
@@ -86,6 +105,7 @@
 	    </tbody>
 
 	</table>
+
        </div>
     </div>
 </body>
